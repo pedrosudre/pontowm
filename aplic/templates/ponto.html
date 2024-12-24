@@ -1,0 +1,47 @@
+<!-- ponto.html -->
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Ponto</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Registro de Ponto</h1>
+    <button id="registrarPonto">Registrar Entrada</button>  <!-- Botão para registrar ponto -->
+    <div id="status"></div>  <!-- Exibe o status da ação -->
+
+    <script>
+        $(document).ready(function(){
+            let tipoPonto = "entrada";  // Começa com "entrada"
+
+            $('#registrarPonto').click(function() {
+                $.ajax({
+                    url: '{% url "registrar_ponto" %}',  // URL que processa o registro de ponto
+                    type: 'POST',
+                    data: {
+                        'tipo_ponto': tipoPonto,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'  // Token CSRF para segurança
+                    },
+                    success: function(response) {
+                        $('#status').text(response.message);
+
+                        // Alterna entre "entrada" e "saída"
+                        if (response.status === "entrada") {
+                            tipoPonto = "saida";  // Após a entrada, próximo será a saída
+                            $('#registrarPonto').text('Registrar Saída');
+                        } else if (response.status === "saida") {
+                            tipoPonto = "entrada";  // Após a saída, próximo será a entrada
+                            $('#registrarPonto').text('Registrar Entrada');
+                        }
+                    },
+                    error: function(response) {
+                        $('#status').text('Erro ao registrar ponto: ' + response.responseJSON.error);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

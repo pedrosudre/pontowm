@@ -1,5 +1,6 @@
 import uuid
 from django.db import models
+from django.contrib.auth.models import User
 
 from django.utils import timezone
 from datetime import timedelta
@@ -11,7 +12,7 @@ def get_file_path(_instance, filename):
 
 class Pessoa(models.Model):
     nome = models.CharField('Nome', max_length=100)
-    cpf = models.CharField('CPF', unique=True)
+    cpf = models.CharField('CPF', max_length=11, unique=True)
 
     class Meta:
         abstract = True
@@ -21,7 +22,10 @@ class Pessoa(models.Model):
     def __str__(self):
         return self.nome
 
+
+
 class Funcionario(Pessoa):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     carga_horaria_diaria = models.IntegerField('Carga Horaria', default=8)
     saldo_horas = models.FloatField('Saldo de Horas', default=0.0)  # Saldo acumulado de horas
     data_admissao = models.DateField('Data de Admissão', auto_now_add=True)
